@@ -18,7 +18,8 @@ while line != "":
     line = re.sub(",|\?|\.|\[|\]|\"|-|;|:|\(|\)|\\|_|\*|&|\^|\$|!|'|\/|–" , " " , line)
     line = re.sub("\s{2,}"," ",line)
     line = re.sub("\n","",line)
-    buffread = re.findall("[a-zA-Z0-9]+", line)
+    # buffread = re.findall("[a-zA-Z0-9]+", line)
+    buffread = re.findall("[a-zA-Z]+", line)
     poscomment.append(buffread)
     line = buf.readline()
 
@@ -27,6 +28,11 @@ for i in poscomment:
     for ii in i:
         if len(ii) >= 2:
             dicpos[ii] += 1
+
+for i in poscomment:
+    for ii in i:
+        if dicpos[ii] >= 10 or dicpos[ii]  <= 2:
+            dicpos.pop(ii)
 
 
 
@@ -41,7 +47,7 @@ while line != "":
     line = re.sub(",|\?|\.|\[|\]|\"|-|;|:|\(|\)|\\|_|\*|&|\^|\$|!|'|\/|–" , " " , line)
     line = re.sub("\s{2,}"," ",line)
     line = re.sub("\n","",line)
-    buffread = re.findall("[a-zA-Z0-9]+", line)
+    buffread = re.findall("[a-zA-Z]+", line)
     negcomment.append(buffread)
     line = buf.readline()
 
@@ -50,6 +56,11 @@ for i in negcomment:
     for ii in i:
         if len(ii) >= 2:
             dicneg[ii] += 1
+
+for i in negcomment:
+    for ii in i:
+        if dicneg[ii] >= 10 or dicneg[ii]  <= 2:
+            dicneg.pop(ii)
 
 
 
