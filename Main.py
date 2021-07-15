@@ -73,6 +73,11 @@ def extract_data(kind , unidic , bindic):
             if binary in bindic.keys():
                 if bindic[binary][0] > 10 or bindic[binary][0]  < 3:
                     bindic.pop(binary)
+                    continue
+                if i[ii+1] not in unidic.keys() :
+                    unidic[i[ii+1]].append(1)
+                if i[ii+1] not in unidic.keys() :
+                    unidic[i[ii+1]].append(1)
 
     
 
@@ -132,7 +137,8 @@ extract_data("neg" , dicneg , dicnegbin)
 # print(cal_M("neg"))
 # cal_P_bigram("pos")
 # print(dicpos)
-print("strengths" in dicpos)
+print("strength" in dicpos)
 print("the strength" in dicposbin)
 # print(dicneg["strength"])
 print(dicposbin["the strength"])
+print(dicpos["strength"])
