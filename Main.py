@@ -8,6 +8,8 @@ dicpos = defaultdict(list)
 dicneg = defaultdict(list)
 dicposbin = defaultdict(list)
 dicnegbin= defaultdict(list)
+# M_neg = 0
+# M_pos = 0
 
 
 address = ".\Sources\\rt-polarity.pos"
@@ -121,3 +123,23 @@ for i in negcomment:
             if dicnegbin[binary][0] > 10 or dicnegbin[binary][0]  < 3:
                 dicnegbin.pop(binary)
 
+
+def cal_M(kind):
+    dicM = None
+    sumM = 0
+    if kind == "pos" :
+        dicM = dicpos
+    else:
+        dicM = dicneg
+    for n in dicM.values():
+        sumM += n[0]
+    
+    return sumM
+
+        
+
+
+
+# print(dicnegbin)
+# print(dicneg)
+# print(cal_M("neg"))
