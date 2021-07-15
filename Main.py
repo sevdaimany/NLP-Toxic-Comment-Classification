@@ -153,12 +153,31 @@ def cal_P_Unigram(kind):
         format_float = "{:.6f}".format(p)
         n.append(format_float)
 
-    
+def cal_P_bigram(kind):
+    dicUnigram = None
+    dicBigram = None
+    if kind == "pos":
+        dicUnigram = dicpos
+        dicBigram = dicposbin
+    else:
+        dicUnigram = dicneg
+        dicBigram = dicnegbin
 
+    for n in dicBigram.keys():
+        wi_1 = n.split(" ")[1]
+        print(n)
+        print(wi_1)
+        print(dicUnigram[wi_1])
+        # p = dicBigram[n][0] / dicUnigram[wi_1][0] 
+        # format_float = "{:.6f}".format(p)
+        # dicBigram[n].append(p)
 
 
 # print(dicnegbin)
 # print(dicneg)
 # print(cal_M("neg"))
-cal_P_Unigram("pos")
-print(dicpos)
+# cal_P_bigram("pos")
+# print(dicpos)
+print("strength" in dicpos)
+print("the strength" in dicposbin)
+# print(dicneg["strength"])
