@@ -12,117 +12,69 @@ dicnegbin= defaultdict(list)
 # M_pos = 0
 
 
-address = ".\Sources\\rt-polarity.pos"
-with open(address) as reader :
-    myinput = reader.read()
 
-buf = io.StringIO(myinput)
-line = buf.readline()
+def extract_data(kind , unidic , bindic):
 
-while line != "":
-    line = re.sub(",|\?|\.|\[|\]|\"|-|;|:|\(|\)|\\|_|\*|&|\^|\$|!|'|\/|–" , " " , line)
-    line = re.sub("\s{2,}"," ",line)
-    line = re.sub("\n","",line)
-    # buffread = re.findall("[a-zA-Z0-9]+", line)
-    buffread = re.findall("[a-zA-Z]+", line)
-    poscomment.append(buffread)
+    commentlist = list()
+
+    if kind == "pos":
+        address = ".\Sources\\rt-polarity.pos"
+    else:
+        address = ".\Sources\\rt-polarity.neg"
+
+    with open(address) as reader :
+        myinput = reader.read()
+
+    buf = io.StringIO(myinput)
     line = buf.readline()
 
-for i in poscomment:
-    for ii in i:
-        if ii not in dicpos.keys():
-            dicpos[ii].append(0)
+    while line != "":
+        line = re.sub(",|\?|\.|\[|\]|\"|-|;|:|\(|\)|\\|_|\*|&|\^|\$|!|'|\/|–" , " " , line)
+        line = re.sub("\s{2,}"," ",line)
+        line = re.sub("\n","",line)
+        # buffread = re.findall("[a-zA-Z0-9]+", line)
+        buffread = re.findall("[a-zA-Z]+", line)
+        commentlist.append(buffread)
+        line = buf.readline()
 
-        if len(ii) >= 2:
-            dicpos[ii][0] += 1
+    for i in commentlist:
+        for ii in i:
+            if ii not in unidic.keys():
+                unidic[ii].append(0)
 
-for i in poscomment:
-    for ii in range(len(i)):
-        if ii == (len(i) - 1):
-            break
-        if len(i[ii]) < 3 or  len(i[ii+1]) < 3:
-            continue
-        binary = i[ii] +" "+ i[ii+1]
-        if binary not in dicposbin.keys():
-            dicposbin[binary].append(0)
+            if len(ii) >= 2:
+                unidic[ii][0] += 1
 
-        if len(binary) > 5:
-            dicposbin[binary][0] += 1
+    for i in commentlist:
+        for ii in range(len(i)):
+            if ii == (len(i) - 1):
+                break
+            if len(i[ii]) < 3 or  len(i[ii+1]) < 3:
+                continue
+            binary = i[ii] +" "+ i[ii+1]
+            if binary not in bindic.keys():
+                bindic[binary].append(0)
+    
+            if len(binary) > 5:
+                bindic[binary][0] += 1
+    
+    
+    for i in commentlist:
+        for ii in i:
+            if ii in unidic.keys():
+                if unidic[ii][0] > 10 or unidic[ii][0]  < 3:
+                    unidic.pop(ii)
+    
+    for i in commentlist:
+        for ii in range(len(i)):
+            if ii == (len(i) - 1):
+                break
+            binary = i[ii] +" "+ i[ii+1]
+            if binary in bindic.keys():
+                if bindic[binary][0] > 10 or bindic[binary][0]  < 3:
+                    bindic.pop(binary)
 
-
-
-for i in poscomment:
-    for ii in i:
-        if ii in dicpos.keys():
-            if dicpos[ii][0] > 10 or dicpos[ii][0]  < 3:
-                dicpos.pop(ii)
-
-for i in poscomment:
-    for ii in range(len(i)):
-        if ii == (len(i) - 1):
-            break
-        binary = i[ii] +" "+ i[ii+1]
-        if binary in dicposbin.keys():
-            if dicposbin[binary][0] > 10 or dicposbin[binary][0]  < 3:
-                dicposbin.pop(binary)
-
-
-
-address = ".\Sources\\rt-polarity.neg"
-with open(address) as reader :
-    myinput = reader.read()
-
-buf = io.StringIO(myinput)
-line = buf.readline()
-
-while line != "":
-    line = re.sub(",|\?|\.|\[|\]|\"|-|;|:|\(|\)|\\|_|\*|&|\^|\$|!|'|\/|–" , " " , line)
-    line = re.sub("\s{2,}"," ",line)
-    line = re.sub("\n","",line)
-    buffread = re.findall("[a-zA-Z]+", line)
-    negcomment.append(buffread)
-    line = buf.readline()
-
-
-for i in negcomment:
-    for ii in i:
-        if ii not in dicneg.keys():
-            dicneg[ii].append(0)
-
-        if len(ii) >= 2:
-            dicneg[ii][0] += 1
-
-
-for i in negcomment:
-    for ii in range(len(i)):
-        if ii == (len(i) - 1):
-            break
-        if len(i[ii]) < 3 or  len(i[ii+1]) < 3:
-            continue
-        binary = i[ii] +" "+ i[ii+1]
-        if binary not in dicnegbin.keys():
-            dicnegbin[binary].append(0)
-
-        if len(binary) > 5:
-            dicnegbin[binary][0] += 1
-
-
-for i in negcomment:
-    for ii in i:
-        if ii in dicneg.keys():
-            if dicneg[ii][0] >= 10 or dicneg[ii][0]  <= 2:
-                dicneg.pop(ii)
-
-
-for i in negcomment:
-    for ii in range(len(i)):
-        if ii == (len(i) - 1):
-            break
-        binary = i[ii] +" "+ i[ii+1]
-        if binary in dicnegbin.keys():
-            if dicnegbin[binary][0] > 10 or dicnegbin[binary][0]  < 3:
-                dicnegbin.pop(binary)
-
+    
 
 def cal_M(kind):
     dicM = None
@@ -173,11 +125,14 @@ def cal_P_bigram(kind):
         # dicBigram[n].append(p)
 
 
+extract_data("pos" , dicpos , dicposbin)
+extract_data("neg" , dicneg , dicnegbin)
 # print(dicnegbin)
 # print(dicneg)
 # print(cal_M("neg"))
 # cal_P_bigram("pos")
 # print(dicpos)
-print("strength" in dicpos)
+print("strengths" in dicpos)
 print("the strength" in dicposbin)
 # print(dicneg["strength"])
+print(dicposbin["the strength"])
