@@ -138,8 +138,27 @@ def cal_M(kind):
 
         
 
+def cal_P_Unigram(kind):
+    dicP = None
+    M = 0
+    if kind == "pos":
+        dicP = dicpos
+        M = cal_M("pos")
+    else:
+        dicP = dicneg
+        M = cal_M("neg")
+
+    for n in dicP.values():
+        p =n[0] / M
+        format_float = "{:.6f}".format(p)
+        n.append(format_float)
+
+    
+
 
 
 # print(dicnegbin)
 # print(dicneg)
 # print(cal_M("neg"))
+cal_P_Unigram("pos")
+print(dicpos)
