@@ -11,7 +11,8 @@ dicposbin = defaultdict(list)
 dicnegbin= defaultdict(list)
 spanlist = []
 
-
+l1 , l2 , l3 = 0.6 , 0.3 , 0.1
+E = 0.00001
 
 def extract_data(kind):
 
@@ -33,11 +34,19 @@ def extract_data(kind):
         line = re.sub("\s{2,}"," ",line)
         line = re.sub("\n","",line)
         # buffread = re.findall("[a-zA-Z0-9]+", line)
-        buffread = re.findall("[a-zA-Z]+", line)
+        buffread = re.findall("[a-zA-Z]{3,}", line)
         commentlist.append(buffread)
         line = buf.readline()
 
     return commentlist
+
+def extract_data_comment(line):
+    
+    line = re.sub(",|\?|\.|\[|\]|\"|-|;|:|\(|\)|\\|_|\*|&|\^|\$|!|'|\/|–" , " " , line)
+    line = re.sub("\s{2,}"," ",line)
+    line = re.sub("\n","",line)
+
+    return re.findall("[a-zA-Z]{3,}", line)
 
 
 def build_unigram(kind):
@@ -168,6 +177,42 @@ def cal_P_bigram(kind):
         dicBigram[n].append(format_float)
 
 
+def find_unigram(cmnt , kind):
+
+    p = 1
+
+    if kind == "pos":
+        if cmnt in dicpos.keys():
+            p *= float(dicpos[cmnt][1])
+        else :
+            p *= E
+            
+    elif kind == "neg":
+        if cmnt in dicneg.keys():
+            p *= float(dicneg[cmnt][1])
+        else :
+            p *= E
+
+    return p
+    
+def find_bigram(cmnt , kind):
+    p = 1
+    p1 ,p2 = 0 ,0 
+
+    if kind == "pos":
+        if cmnt in dicposbin.keys():
+            p1  = l1 * float(dicposbin[cmnt])
+        if cmnt in dicpos.keys():
+            p2 = l2 * float(dicpos[cmnt])
+
+    elif kind == "neg":
+        if cmnt in dicnegbin.keys():
+            p1  = l1 * float(dicnegbin[cmnt])
+        if cmnt in dicneg.keys():
+            p2 = l2* float(dicneg[cmnt])
+
+    p = p1 + p2 + l3*E
+    return p
 
 
 poscomment = extract_data("pos")
@@ -186,5 +231,31 @@ build_bigram("neg")
 cal_P_Unigram("neg")
 cal_P_bigram("neg")
 
-print(dicnegbin)
+
+comment = extract_data_comment(input())
+
+ppos = 0.5
+pneg = 0.5
+
+
+for cmnt in comment:
+
+    iindex = comment.index(cmnt)
+    if iindex == 0:
+
+        ppos *= find_unigram(cmnt , "pos")
+        pneg *= find_unigram(cmnt , "neg")
+        continue
+    
+    wib = comment[iindex - 1]
+    w = wib + " " + cmnt
+
+    ppos *= find_bigram(w , "pos")
+    pneg *= find_bigram(w , "neg")
+
+if ppos >= pneg :
+    print("not filter this")
+else : 
+    print("filter this")
+
 
