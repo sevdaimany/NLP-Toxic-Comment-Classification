@@ -115,3 +115,76 @@ def build_bigram(kind):
             
             bindic[binary][0] += 1
     
+
+    
+
+def cal_M(kind):
+    dicM = None
+    sumM = 0
+    if kind == "pos" :
+        dicM = dicpos
+    else:
+        dicM = dicneg
+    for n in dicM.values():
+        sumM += n[0]
+    
+    return sumM
+
+        
+
+def cal_P_Unigram(kind):
+    print("hi")
+    dicP = None
+    M = 0
+    if kind == "pos":
+        dicP = dicpos
+        M = cal_M("pos")
+    else:
+        dicP = dicneg
+        M = cal_M("neg")
+
+    for n in dicP.values():
+        p =n[0] / M
+        format_float = "{:.6f}".format(p)
+        n.append(format_float)
+
+def cal_P_bigram(kind):
+    dicUnigram = None
+    dicBigram = None
+    if kind == "pos":
+        dicUnigram = dicpos
+        dicBigram = dicposbin
+    else:
+        dicUnigram = dicneg
+        dicBigram = dicnegbin
+
+    for n in dicBigram.keys():
+        wi_1 = n.split(" ")[1]
+        # print(n)
+        # print(wi_1)
+        # print(dicUnigram[wi_1])
+        p = dicBigram[n][0] / dicUnigram[wi_1][0] 
+        format_float = "{:.6f}".format(p)
+        dicBigram[n].append(format_float)
+
+
+
+
+poscomment = extract_data("pos")
+build_unigram("pos")
+remove_lowpowers("pos")
+poscomment = process_file("pos")
+build_bigram("pos")
+cal_P_Unigram("pos")
+cal_P_bigram("pos")
+
+negcomment = extract_data("neg")
+build_unigram("neg")
+remove_lowpowers("neg")
+negcomment = process_file("neg")
+build_bigram("neg")
+cal_P_Unigram("neg")
+cal_P_bigram("neg")
+
+print(dicnegbin)
+
