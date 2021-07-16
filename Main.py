@@ -91,3 +91,27 @@ def process_file(kind):
                 row.append(ii)
         newOne.append(row)
     return newOne
+
+
+def build_bigram(kind):
+    commentlist = None
+    bindic = None
+    if kind == "pos":
+        commentlist = poscomment
+        bindic = dicposbin
+    else:
+        commentlist = negcomment
+        bindic = dicnegbin
+
+    for i in commentlist:
+        for ii in range(len(i)):
+            if ii == (len(i) - 1):
+                break
+           
+            binary = i[ii] +" "+ i[ii+1]
+            if binary not in bindic.keys():
+                bindic[binary].append(0)
+    
+            
+            bindic[binary][0] += 1
+    
