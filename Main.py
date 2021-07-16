@@ -76,3 +76,18 @@ def remove_lowpowers(kind):
                     spanlist.append(ii)
                     unidic.pop(ii)
 
+def process_file(kind):
+    commentlist = None
+    if kind == "pos":
+        commentlist = poscomment
+    else:
+        commentlist = negcomment
+    newOne = []
+    for i in commentlist:
+        row = []
+        for ii in i:
+            # if len(ii) >= 2:
+            if ii not in spanlist:
+                row.append(ii)
+        newOne.append(row)
+    return newOne
