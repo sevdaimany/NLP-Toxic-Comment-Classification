@@ -58,3 +58,21 @@ def build_unigram(kind):
             unidic[ii][0] += 1
 
 
+
+def remove_lowpowers(kind):
+    commentlist = None
+    unidic = None
+    if kind == "pos":
+        commentlist = poscomment
+        unidic = dicpos
+    else:
+        commentlist = negcomment
+        unidic = dicneg
+   
+    for i in commentlist:
+        for ii in i:
+            if ii in unidic.keys():
+                if unidic[ii][0] > 10 or unidic[ii][0]  < 2:
+                    spanlist.append(ii)
+                    unidic.pop(ii)
+
