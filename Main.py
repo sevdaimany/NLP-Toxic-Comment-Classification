@@ -7,6 +7,7 @@ poscomment = []
 negcomment = []
 testpos = []
 testneg = []
+spamwords = []
 dicpos = defaultdict(list)
 dicneg = defaultdict(list)
 dicposbin = defaultdict(list)
@@ -60,6 +61,19 @@ def extract_data_comment(line):
 
     return re.findall("[a-zA-Z]{3,}", line)
 
+def extract_spam():
+
+    address = ".\Sources\\spamword.txt"
+    with open(address) as reader :
+        myinput = reader.read()
+
+    buf = io.StringIO(myinput)
+    line = buf.readline()
+
+    while line != "":
+        buffread = line.split(" ")
+        spamwords.extend(buffread)
+        line = buf.readline()
 
 def build_unigram(kind):
     commentlist = None
@@ -92,7 +106,7 @@ def remove_lowpowers(kind):
     for i in commentlist:
         for ii in i:
             if ii in unidic.keys():
-                if unidic[ii][0] > 20 or unidic[ii][0]  < 2:
+                if ii in spamwords or unidic[ii][0]  < 2:
                     spanlist.append(ii)
                     unidic.pop(ii)
 
@@ -153,7 +167,6 @@ def cal_M(kind):
         
 
 def cal_P_Unigram(kind):
-    print("hi")
     dicP = None
     M = 0
     if kind == "pos":
@@ -208,15 +221,15 @@ def find_bigram(cmnt , kind):
 
     if kind == "pos":
         if cmnt in dicposbin.keys():
-            p1  = float(dicposbin[cmnt])
+            p1  = float(dicposbin[cmnt][1])
         if cmnt in dicpos.keys():
-            p2 = float(dicpos[cmnt])
+            p2 = float(dicpos[cmnt][1])
 
     elif kind == "neg":
         if cmnt in dicnegbin.keys():
-            p1  = float(dicnegbin[cmnt])
+            p1  = float(dicnegbin[cmnt][1])
         if cmnt in dicneg.keys():
-            p2 = float(dicneg[cmnt])
+            p2 = float(dicneg[cmnt][1])
 
     p = l1*p1 + l2*p2 + l3*E
     return p
@@ -247,7 +260,7 @@ def calculate_p(comment , model):
     
     return ppos ,pneg
     
-
+print("wait")
 poscomment = extract_data("pos")
 build_unigram("pos")
 remove_lowpowers("pos")
@@ -263,24 +276,38 @@ negcomment = process_file("neg")
 build_bigram("neg")
 cal_P_Unigram("neg")
 cal_P_bigram("neg")
+print("done!")
 
-model = "unigram"
-# model = "bigram"
+# model = "unigram"
+model = "bigram"
 
-# comment = extract_data_comment(input())
-# ppos ,pneg = calculate_p(comment , model)
+typee = "test"
 
-for comment in testpos:
-    ppos ,pneg = calculate_p(comment , model)
-    if ppos >= pneg :
-        print("not filter this")
-    else : 
-        print("filter this")
+if typee == "test":
+
+    for comment in testneg:
+        ppos ,pneg = calculate_p(comment , model)
+        if ppos >= pneg :
+            print("not filter this")
+        else : 
+            print("filter this")
+else:
+
+    myinput = input()
+    while not myinput == "exit":
+        comment = extract_data_comment(myinput)
+        ppos ,pneg = calculate_p(comment , model)
+
+        if ppos >= pneg :
+            print("not filter this")
+        else : 
+            print("filter this")
+        
+        myinput = input()
 
 
-# if ppos >= pneg :
-#     print("not filter this")
-# else : 
-#     print("filter this")
+
+
+
 
 
