@@ -81,7 +81,7 @@ def remove_lowpowers(kind):
     for i in commentlist:
         for ii in i:
             if ii in unidic.keys():
-                if unidic[ii][0] > 10 or unidic[ii][0]  < 2:
+                if unidic[ii][0] > 20 or unidic[ii][0]  < 2:
                     spanlist.append(ii)
                     unidic.pop(ii)
 
@@ -180,19 +180,15 @@ def cal_P_bigram(kind):
 def find_unigram(cmnt , kind):
 
     p = 1
+    p1 ,p2 = 0 ,0 
 
-    if kind == "pos":
-        if cmnt in dicpos.keys():
-            p *= float(dicpos[cmnt][1])
-        else :
-            p *= E
-            
-    elif kind == "neg":
-        if cmnt in dicneg.keys():
-            p *= float(dicneg[cmnt][1])
-        else :
-            p *= E
+    if kind == "pos" and cmnt in dicpos.keys():
+        p2 = float(dicpos[cmnt][1])
 
+    elif kind == "neg" and cmnt in dicneg.keys():
+        p2 = float(dicneg[cmnt][1])
+
+    p = l2*p2 + l3*E
     return p
     
 def find_bigram(cmnt , kind):
@@ -201,17 +197,17 @@ def find_bigram(cmnt , kind):
 
     if kind == "pos":
         if cmnt in dicposbin.keys():
-            p1  = l1 * float(dicposbin[cmnt])
+            p1  = float(dicposbin[cmnt])
         if cmnt in dicpos.keys():
-            p2 = l2 * float(dicpos[cmnt])
+            p2 = float(dicpos[cmnt])
 
     elif kind == "neg":
         if cmnt in dicnegbin.keys():
-            p1  = l1 * float(dicnegbin[cmnt])
+            p1  = float(dicnegbin[cmnt])
         if cmnt in dicneg.keys():
-            p2 = l2* float(dicneg[cmnt])
+            p2 = float(dicneg[cmnt])
 
-    p = p1 + p2 + l3*E
+    p = l1*p1 + l2*p2 + l3*E
     return p
 
 
@@ -237,21 +233,29 @@ comment = extract_data_comment(input())
 ppos = 0.5
 pneg = 0.5
 
+model = "unigram" # "bigram"
 
 for cmnt in comment:
 
-    iindex = comment.index(cmnt)
-    if iindex == 0:
+    if model == "bigram":
+        iindex = comment.index(cmnt)
+        if iindex == 0:
 
+            ppos *= find_unigram(cmnt , "pos")
+            pneg *= find_unigram(cmnt , "neg")
+            continue
+        
+        wib = comment[iindex - 1]
+        w = wib + " " + cmnt
+
+        ppos *= find_bigram(w , "pos")
+        pneg *= find_bigram(w , "neg")
+
+    else:
         ppos *= find_unigram(cmnt , "pos")
         pneg *= find_unigram(cmnt , "neg")
-        continue
-    
-    wib = comment[iindex - 1]
-    w = wib + " " + cmnt
 
-    ppos *= find_bigram(w , "pos")
-    pneg *= find_bigram(w , "neg")
+
 
 if ppos >= pneg :
     print("not filter this")
