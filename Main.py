@@ -5,6 +5,8 @@ from collections import defaultdict
 
 poscomment = []
 negcomment = []
+testpos = []
+testneg = []
 dicpos = defaultdict(list)
 dicneg = defaultdict(list)
 dicposbin = defaultdict(list)
@@ -17,6 +19,7 @@ E = 0.00001
 def extract_data(kind):
 
     commentlist = list()
+    count = 0
 
     if kind == "pos":
         address = ".\Sources\\rt-polarity.pos"
@@ -35,9 +38,18 @@ def extract_data(kind):
         line = re.sub("\n","",line)
         # buffread = re.findall("[a-zA-Z0-9]+", line)
         buffread = re.findall("[a-zA-Z]{3,}", line)
-        commentlist.append(buffread)
-        line = buf.readline()
 
+        if count > 5200 :
+            if kind == "pos":
+                testpos.append(buffread)
+            else:
+                testneg.append(buffread)
+        else:
+            commentlist.append(buffread)
+
+        line = buf.readline()
+        count += 1
+ 
     return commentlist
 
 def extract_data_comment(line):
@@ -58,7 +70,6 @@ def build_unigram(kind):
     else:
         commentlist = negcomment
         unidic = dicneg
-        
     for i in commentlist:
         for ii in i:
             # if len(ii) >= 2:
@@ -210,6 +221,32 @@ def find_bigram(cmnt , kind):
     p = l1*p1 + l2*p2 + l3*E
     return p
 
+def calculate_p(comment , model):
+
+    ppos = 0.5
+    pneg = 0.5
+
+    for cmnt in comment:
+        if model == "bigram":
+            iindex = comment.index(cmnt)
+            if iindex == 0:
+
+                ppos *= find_unigram(cmnt , "pos")
+                pneg *= find_unigram(cmnt , "neg")
+                continue
+            
+            wib = comment[iindex - 1]
+            w = wib + " " + cmnt
+
+            ppos *= find_bigram(w , "pos")
+            pneg *= find_bigram(w , "neg")
+
+        else:
+            ppos *= find_unigram(cmnt , "pos")
+            pneg *= find_unigram(cmnt , "neg")
+    
+    return ppos ,pneg
+    
 
 poscomment = extract_data("pos")
 build_unigram("pos")
@@ -227,39 +264,23 @@ build_bigram("neg")
 cal_P_Unigram("neg")
 cal_P_bigram("neg")
 
+model = "unigram"
+# model = "bigram"
 
-comment = extract_data_comment(input())
+# comment = extract_data_comment(input())
+# ppos ,pneg = calculate_p(comment , model)
 
-ppos = 0.5
-pneg = 0.5
-
-model = "unigram" # "bigram"
-
-for cmnt in comment:
-
-    if model == "bigram":
-        iindex = comment.index(cmnt)
-        if iindex == 0:
-
-            ppos *= find_unigram(cmnt , "pos")
-            pneg *= find_unigram(cmnt , "neg")
-            continue
-        
-        wib = comment[iindex - 1]
-        w = wib + " " + cmnt
-
-        ppos *= find_bigram(w , "pos")
-        pneg *= find_bigram(w , "neg")
-
-    else:
-        ppos *= find_unigram(cmnt , "pos")
-        pneg *= find_unigram(cmnt , "neg")
+for comment in testpos:
+    ppos ,pneg = calculate_p(comment , model)
+    if ppos >= pneg :
+        print("not filter this")
+    else : 
+        print("filter this")
 
 
-
-if ppos >= pneg :
-    print("not filter this")
-else : 
-    print("filter this")
+# if ppos >= pneg :
+#     print("not filter this")
+# else : 
+#     print("filter this")
 
 
