@@ -40,7 +40,8 @@ def extract_data(kind):
         # buffread = re.findall("[a-zA-Z0-9]+", line)
         buffread = re.findall("[a-zA-Z]{3,}", line)
 
-        if count > 5200 :
+        # if count > 5200 :
+        if count > 5400 :
             if kind == "pos":
                 testpos.append(buffread)
             else:
@@ -63,7 +64,7 @@ def extract_data_comment(line):
 
 def extract_spam():
 
-    address = ".\Sources\\spamword.txt"
+    address = ".\Sources\\spamwords.txt"
     with open(address) as reader :
         myinput = reader.read()
 
@@ -71,6 +72,8 @@ def extract_spam():
     line = buf.readline()
 
     while line != "":
+        line = line.replace("\n","")
+        line = line.replace("  "," ")
         buffread = line.split(" ")
         spamwords.extend(buffread)
         line = buf.readline()
@@ -259,9 +262,12 @@ def calculate_p(comment , model):
             pneg *= find_unigram(cmnt , "neg")
     
     return ppos ,pneg
-    
+
+
+
 print("wait")
 poscomment = extract_data("pos")
+extract_spam()
 build_unigram("pos")
 remove_lowpowers("pos")
 poscomment = process_file("pos")
@@ -278,10 +284,11 @@ cal_P_Unigram("neg")
 cal_P_bigram("neg")
 print("done!")
 
+
 # model = "unigram"
 model = "bigram"
 
-typee = "test"
+typee = "tests"
 
 if typee == "test":
 
@@ -308,6 +315,8 @@ else:
 
 
 
+    
+    
 
 
 
