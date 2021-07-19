@@ -14,11 +14,11 @@ dicposbin = defaultdict(list)
 dicnegbin= defaultdict(list)
 spanlist = []
 
-l1 , l2 , l3 = 0.8 , 0.25 , 0.05
+l1 , l2 , l3 = 0.8 , 0.15 , 0.05
 E = 0.0001
 
-# l1 , l2 , l3 = 0.5 , 0.45 , 0.05
-# E = 0.005
+# l1 , l2 , l3 = 0.2 , 0.75 , 0.05
+# E = 0.0001
 
 def extract_data(kind):
 
@@ -41,7 +41,9 @@ def extract_data(kind):
         line = re.sub("\s{2,}"," ",line)
         line = re.sub("\n","",line)
         # buffread = re.findall("[a-zA-Z0-9]+", line)
-        buffread = re.findall("[a-zA-Z]{3,}", line)
+        # buffread = re.findall("[a-zA-Z]{3,}", line)
+        buffread = re.findall("[a-zA-Z]{1,}", line)
+
 
         if count > 5250 :
         # if count > 5700 :
@@ -63,7 +65,9 @@ def extract_data_comment(line):
     line = re.sub("\s{2,}"," ",line)
     line = re.sub("\n","",line)
 
-    return re.findall("[a-zA-Z]{3,}", line)
+    # return re.findall("[a-zA-Z]{3,}", line)
+    return re.findall("[a-zA-Z]{1,}", line)
+
 
 def extract_spam():
 
@@ -185,8 +189,7 @@ def cal_P_Unigram(kind):
 
     for n in dicP.values():
         p =n[0] / M
-        format_float = "{:.6f}".format(p)
-        n.append(format_float)
+        n.append(p)
 
 def cal_P_bigram(kind):
     dicUnigram = None
@@ -199,19 +202,15 @@ def cal_P_bigram(kind):
         dicBigram = dicnegbin
 
     for n in dicBigram.keys():
-        wi_1 = n.split(" ")[1]
-        # print(n)
-        # print(wi_1)
-        # print(dicUnigram[wi_1])
+        wi_1 = n.split(" ")[0]
         p = dicBigram[n][0] / dicUnigram[wi_1][0] 
-        format_float = "{:.6f}".format(p)
-        dicBigram[n].append(format_float)
+        dicBigram[n].append(p)
 
 
 def find_unigram(cmnt , kind):
 
     p = 1
-    p1 ,p2 = 0 ,0 
+    p2 = 0
 
     if kind == "pos" and cmnt in dicpos.keys():
         p2 = float(dicpos[cmnt][1])
@@ -228,15 +227,15 @@ def find_bigram(cmnt , kind):
 
     if kind == "pos":
         if cmnt in dicposbin.keys():
-            p1  = float(dicposbin[cmnt][1])
+            p1  = dicposbin[cmnt][1]
         if cmnt in dicpos.keys():
-            p2 = float(dicpos[cmnt][1])
+            p2 = dicpos[cmnt][1]
 
     elif kind == "neg":
         if cmnt in dicnegbin.keys():
-            p1  = float(dicnegbin[cmnt][1])
+            p1  = dicnegbin[cmnt][1]
         if cmnt in dicneg.keys():
-            p2 = float(dicneg[cmnt][1])
+            p2 = dicneg[cmnt][1]
 
     p = l1*p1 + l2*p2 + l3*E
     return p
@@ -269,20 +268,31 @@ def calculate_p(comment , model):
 
 
 
+def process_comment(comment):
+    # newcom = []
+    for c in comment:
+        if c in spamwords:
+            # newcom.append(c)
+            comment.remove(c)
+
+    print(comment)
+    return comment
+
+
 print("wait")
-poscomment = extract_data("pos")
 extract_spam()
+poscomment = extract_data("pos")
 build_unigram("pos")
-remove_lowpowers("pos")
-poscomment = process_file("pos")
+# remove_lowpowers("pos")
+# poscomment = process_file("pos")
 build_bigram("pos")
 cal_P_Unigram("pos")
 cal_P_bigram("pos")
 
 negcomment = extract_data("neg")
 build_unigram("neg")
-remove_lowpowers("neg")
-negcomment = process_file("neg")
+# remove_lowpowers("neg")
+# negcomment = process_file("neg")
 build_bigram("neg")
 cal_P_Unigram("neg")
 cal_P_bigram("neg")
@@ -307,11 +317,13 @@ if typee == "test":
             print("filter this")
             coun+=1
     print((coun / sums) * 100 , " %")
+    print(sums)
 else:
-
+    
     myinput = input()
     while not myinput == "exit":
         comment = extract_data_comment(myinput)
+        comment = process_comment(comment)
         ppos ,pneg = calculate_p(comment , model)
 
         if ppos >= pneg :
@@ -324,8 +336,9 @@ else:
 
 
 
-    
-    
 
+    
+    
+# print()
 
 
