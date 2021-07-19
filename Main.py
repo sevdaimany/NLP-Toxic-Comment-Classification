@@ -14,8 +14,11 @@ dicposbin = defaultdict(list)
 dicnegbin= defaultdict(list)
 spanlist = []
 
-l1 , l2 , l3 = 0.6 , 0.3 , 0.1
-E = 0.00001
+l1 , l2 , l3 = 0.8 , 0.25 , 0.05
+E = 0.0001
+
+# l1 , l2 , l3 = 0.5 , 0.45 , 0.05
+# E = 0.005
 
 def extract_data(kind):
 
@@ -40,8 +43,8 @@ def extract_data(kind):
         # buffread = re.findall("[a-zA-Z0-9]+", line)
         buffread = re.findall("[a-zA-Z]{3,}", line)
 
-        # if count > 5200 :
-        if count > 5400 :
+        if count > 5250 :
+        # if count > 5700 :
             if kind == "pos":
                 testpos.append(buffread)
             else:
@@ -110,6 +113,7 @@ def remove_lowpowers(kind):
         for ii in i:
             if ii in unidic.keys():
                 if ii in spamwords or unidic[ii][0]  < 2:
+                # if unidic[ii][0]  < 2:
                     spanlist.append(ii)
                     unidic.pop(ii)
 
@@ -288,16 +292,21 @@ print("done!")
 # model = "unigram"
 model = "bigram"
 
-typee = "tests"
+typee = "test"
 
 if typee == "test":
+    coun = 0
+    sums = 0
 
     for comment in testneg:
+        sums +=1
         ppos ,pneg = calculate_p(comment , model)
         if ppos >= pneg :
             print("not filter this")
         else : 
             print("filter this")
+            coun+=1
+    print((coun / sums) * 100 , " %")
 else:
 
     myinput = input()
