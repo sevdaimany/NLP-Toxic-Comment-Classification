@@ -13,12 +13,13 @@ dicneg = defaultdict(list)
 dicposbin = defaultdict(list)
 dicnegbin= defaultdict(list)
 spanlist = []
+defualtComments = True
+numberOfComments = 0
+numNeg =0
+numPos = 0
 
 l1 , l2 , l3 = 0.8 , 0.15 , 0.05
 E = 0.0001
-
-# l1 , l2 , l3 = 0.2 , 0.75 , 0.05
-# E = 0.0001
 
 def extract_data(kind):
 
@@ -40,19 +41,20 @@ def extract_data(kind):
         line = re.sub(",|\?|\.|\[|\]|\"|-|;|:|\(|\)|\\|_|\*|&|\^|\$|!|'|\/|–" , " " , line)
         line = re.sub("\s{2,}"," ",line)
         line = re.sub("\n","",line)
-        # buffread = re.findall("[a-zA-Z0-9]+", line)
-        # buffread = re.findall("[a-zA-Z]{3,}", line)
         buffread = re.findall("[a-zA-Z]{1,}", line)
 
 
-        if count > 5250 :
-        # if count > 5700 :
-            if kind == "pos":
-                testpos.append(buffread)
+        if defualtComments == True :
+            if count > numberOfComments :
+                if kind == "pos":
+                    testpos.append(buffread)
+                else:
+                    testneg.append(buffread)
             else:
-                testneg.append(buffread)
+                commentlist.append(buffread)
         else:
             commentlist.append(buffread)
+
 
         line = buf.readline()
         count += 1
@@ -65,7 +67,6 @@ def extract_data_comment(line):
     line = re.sub("\s{2,}"," ",line)
     line = re.sub("\n","",line)
 
-    # return re.findall("[a-zA-Z]{3,}", line)
     return re.findall("[a-zA-Z]{1,}", line)
 
 
@@ -96,7 +97,6 @@ def build_unigram(kind):
         unidic = dicneg
     for i in commentlist:
         for ii in i:
-            # if len(ii) >= 2:
             if ii not in unidic.keys():
                 unidic[ii].append(0)
             unidic[ii][0] += 1
@@ -117,7 +117,6 @@ def remove_lowpowers(kind):
         for ii in i:
             if ii in unidic.keys():
                 if ii in spamwords or unidic[ii][0]  < 2:
-                # if unidic[ii][0]  < 2:
                     spanlist.append(ii)
                     unidic.pop(ii)
 
@@ -131,7 +130,6 @@ def process_file(kind):
     for i in commentlist:
         row = []
         for ii in i:
-            # if len(ii) >= 2:
             if ii not in spanlist:
                 row.append(ii)
         newOne.append(row)
@@ -269,14 +267,35 @@ def calculate_p(comment , model):
 
 
 def process_comment(comment):
-    # newcom = []
     for c in comment:
         if c in spamwords:
-            # newcom.append(c)
             comment.remove(c)
 
-    print(comment)
     return comment
+
+
+model = ""
+typee = ""
+
+print("1)unigram\n2)bigram")
+inbu = int(input())
+if inbu ==2 :
+    model = "bigram"
+else:
+    model = "unigram"
+
+print("1)Give comments yourself\n2)Use our default comments for checking")
+in2 = int(input())
+if in2 ==1 :
+    typee = "tests"
+    defualtComments = False
+else:
+    print("number of comments : ")
+    n = int(input())
+    # print("n ", n)
+    numberOfComments = 5331 - n -1
+    typee = "test"
+    defualtComments = True
 
 
 print("wait")
@@ -299,16 +318,17 @@ cal_P_bigram("neg")
 print("done!")
 
 
-# model = "unigram"
-model = "bigram"
 
-typee = "test"
 
 if typee == "test":
     coun = 0
     sums = 0
 
+    c = 0
+    print()
     for comment in testneg:
+        c += 1
+        print(c,") " ,' '.join(map(str, comment)))
         sums +=1
         ppos ,pneg = calculate_p(comment , model)
         if ppos >= pneg :
@@ -316,8 +336,9 @@ if typee == "test":
         else : 
             print("filter this")
             coun+=1
-    print((coun / sums) * 100 , " %")
-    print(sums)
+        print()
+
+    print("Percentage : ",(coun / sums) * 100 , " %")
 else:
     
     myinput = input()
@@ -339,6 +360,5 @@ else:
 
     
     
-# print()
 
 
